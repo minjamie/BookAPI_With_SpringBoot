@@ -1,10 +1,10 @@
 package com.example.bookAPI.config;
 
-import com.example.bookAPI.security.jwt.exception.JwtAccessDeniedHandler;
-import com.example.bookAPI.security.jwt.exception.JwtAuthenticationEntryPoint;
-import com.example.bookAPI.security.jwt.provider.JwtTokenProvider;
+import com.example.bookAPI.security.jwt.exception.CustomAuthenticationEntryPoint;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -12,51 +12,46 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsUtils;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@Configurable
+@Configurable // Spring Security에 대한 설정
+@RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtTokenProvider jwtTokenProvider;
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final AuthenticationManagerConfig authenticationManagerConfig;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
-    public SecurityConfig(JwtTokenProvider jwtTokenProvider, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, JwtAccessDeniedHandler jwtAccessDeniedHandler) {
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
-        this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        return http
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .formLogin().disable()
+                .csrf().disable()
+                .cors()
+                .and()
+                .apply(authenticationManagerConfig)
+                .and()
+                .httpBasic().disable()
+                .authorizeRequests()
+                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                .mvcMatchers("api/signup", "api/login", "api/user/refresh").permitAll()
+                .mvcMatchers(HttpMethod.GET, "/**").hasAnyRole("USER", "MANAGER", "ADMIN")
+                .mvcMatchers(HttpMethod.POST, "/**").hasAnyRole("USER", "MANAGER", "ADMIN")
+                .anyRequest().authenticated()
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                .and()
+                .build();
     }
 
+    // 암호를 암호화, 사용자 입력한 암호가 기존 암호화 일치하는 지 검사시 해당 Bean 사용
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf().disable()
-                .exceptionHandling()
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                .accessDeniedHandler(jwtAccessDeniedHandler)
-                .and()
-                .headers()
-                .frameOptions()
-                .sameOrigin()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeRequests()
-                .mvcMatchers("api/hello").permitAll()
-                .mvcMatchers("api/authenticate").permitAll()
-                .mvcMatchers("api/signup").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .apply(new JwtSecurityConfig(jwtTokenProvider));
-        return http.build();
-    }
-
-
 }

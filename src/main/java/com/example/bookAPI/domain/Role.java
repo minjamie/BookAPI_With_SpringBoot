@@ -1,4 +1,4 @@
-package com.example.bookAPI.entity;
+package com.example.bookAPI.domain;
 
 import lombok.*;
 
@@ -7,18 +7,16 @@ import javax.persistence.*;
 @Entity
 @Table(name="role")
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Setter
 @Getter
 public class Role {
-    @Id // 이 필드 Table의 PK
+    @Id
     @Column(name="role_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // userId는 자동으로 생성되도록
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer roleId;
 
 
-    @Column(name = "name", length = 50)
+    @Column(length = 20)
     private String name;
 
     @Override

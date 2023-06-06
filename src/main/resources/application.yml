@@ -13,7 +13,10 @@ spring:
       database-platform : org.hibernate.dialect.MySQL8Dialect
     profiles:
       active: local
-  jwt:
-    header: Authorization
-    secret: c2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQtc2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQK
-    token-validity-in-seconds : 86400
+  logging:
+    output:
+      ansi:
+        enabled: always
+jwt:
+  secretKey: 12345678901234567890123456789012
+  refreshKey: 12345678901234567890123456789012

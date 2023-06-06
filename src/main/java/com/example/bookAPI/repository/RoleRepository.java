@@ -1,6 +1,6 @@
 package com.example.bookAPI.repository;
 
-import com.example.bookAPI.entity.Role;
+import com.example.bookAPI.domain.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
