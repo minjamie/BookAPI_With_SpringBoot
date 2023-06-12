@@ -1,5 +1,6 @@
 package com.example.bookAPI.security.jwt.provider;
 
+import com.example.bookAPI.dto.member.login.LoginInfoDto;
 import com.example.bookAPI.security.jwt.token.JwtAuthenticationToken;
 import com.example.bookAPI.security.jwt.util.JwtTokenizer;
 import io.jsonwebtoken.Claims;
@@ -23,13 +24,18 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         JwtAuthenticationToken authenticationToken = (JwtAuthenticationToken) authentication;
 
-        // 토큰 검증, 기간 만료, 문자열 문제 등 있는지 확인
         Claims claims = jwtTokenizer.parseAccessToken(authenticationToken.getToken());
-        // sub에 암호화된 데이터 넣고 복호화하는 코드를 넣을 수 있음
         String email = claims.getSubject();
+        Long memberId = claims.get("memberId", Long.class);
+        String name = claims.get("name", String.class);
         List<GrantedAuthority> authorities = getGrantedAuthorities(claims);
 
-        return new JwtAuthenticationToken(authorities, email, null);
+        LoginInfoDto loginInfo = new LoginInfoDto();
+        loginInfo.setMemberId(memberId);
+        loginInfo.setEmail(email);
+        loginInfo.setName(name);
+
+        return new JwtAuthenticationToken(authorities, loginInfo, null);
     }
 
     private List<GrantedAuthority> getGrantedAuthorities(Claims claims) {

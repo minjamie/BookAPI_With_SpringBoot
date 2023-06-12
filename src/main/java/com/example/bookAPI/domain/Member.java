@@ -1,20 +1,19 @@
 package com.example.bookAPI.domain;
 
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name="member")
 @Getter
 @Setter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 public class Member {
     @Id
@@ -46,6 +45,21 @@ public class Member {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     Set<Role> roles = new HashSet<>();
+
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    @JoinTable(
+            name = "study_member",
+            joinColumns = @JoinColumn(name = "member_id"),
+            inverseJoinColumns = @JoinColumn(name = "study_id")
+    )
+    private List<Study> studies = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "member")
+    private List<MemberBook> memberBooks = new ArrayList<>();
+
+    @OneToMany(mappedBy="member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookReview> bookReviews = new ArrayList<>();
 
     @Override
     public String toString() {

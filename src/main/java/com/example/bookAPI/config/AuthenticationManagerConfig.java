@@ -1,5 +1,4 @@
 package com.example.bookAPI.config;
-
 import com.example.bookAPI.security.jwt.filter.JwtAuthenticationFilter;
 import com.example.bookAPI.security.jwt.provider.JwtAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
@@ -13,15 +12,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class AuthenticationManagerConfig extends AbstractHttpConfigurer<AuthenticationManagerConfig, HttpSecurity> {
 
-    private JwtAuthenticationProvider jwtAuthenticationProvider;
+    private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
     @Override
     public void configure(HttpSecurity builder) throws Exception {
         AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
 
         builder.addFilterBefore(
-                new JwtAuthenticationFilter(authenticationManager),
-                UsernamePasswordAuthenticationFilter.class).authenticationProvider(jwtAuthenticationProvider);
-
+                        new JwtAuthenticationFilter(authenticationManager),
+                        UsernamePasswordAuthenticationFilter.class)
+                .authenticationProvider(jwtAuthenticationProvider);
     }
 }

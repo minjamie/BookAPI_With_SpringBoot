@@ -24,19 +24,21 @@ import java.io.IOException;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+
     private final AuthenticationManager authenticationManager;
 
     // 요청 들어올 시 헤더값에 토큰이 있는지 검증하는 필터 동작
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = "";
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        String token = getToken(request);
         try {
-            token = getToken(request);
-            if(StringUtils.hasText(token)){
+            if (StringUtils.hasText(token)) {
                 getAuthentication(token);
             }
-            filterChain.doFilter(request,response);
-        }   catch (NullPointerException | IllegalStateException e) {
+            filterChain.doFilter(request, response);
+        }
+        catch (NullPointerException | IllegalStateException e) {
             request.setAttribute("exception", JwtExceptionCode.NOT_FOUND_TOKEN.getCode());
             log.error("Not found Token // token : {}", token);
             log.error("Set Request Exception Code : {}", request.getAttribute("exception"));
@@ -68,6 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throw new BadCredentialsException("throw new exception");
         }
     }
+
 
     private void getAuthentication(String token) {
         JwtAuthenticationToken authenticationToken = new JwtAuthenticationToken(token);

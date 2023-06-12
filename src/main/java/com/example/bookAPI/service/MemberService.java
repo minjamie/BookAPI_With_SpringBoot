@@ -16,7 +16,6 @@ import java.util.Optional;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public Member addMember(Member member) {
@@ -24,5 +23,15 @@ public class MemberService {
         member.addRole(memberRole.get());
         Member saveMember = memberRepository.save(member);
         return saveMember;
+    }
+
+    @Transactional(readOnly = true)
+    public Member findByEmail(String email) {
+        return memberRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("not found member"));
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Member> getMember(Long memberId){
+        return memberRepository.findById(memberId);
     }
 }

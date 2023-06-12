@@ -1,12 +1,17 @@
 package com.example.bookAPI.controller;
 
 import com.example.bookAPI.domain.Member;
+import com.example.bookAPI.domain.RefreshToken;
+import com.example.bookAPI.domain.Role;
 import com.example.bookAPI.dto.member.login.MemberLoginRequestDto;
 import com.example.bookAPI.dto.member.login.MemberLoginResponseDto;
 import com.example.bookAPI.dto.member.signup.MemberSignupRequestDto;
 import com.example.bookAPI.dto.member.signup.MemberSignupResponseDto;
+import com.example.bookAPI.dto.refresh.RefreshTokenRequestDto;
 import com.example.bookAPI.security.jwt.util.JwtTokenizer;
 import com.example.bookAPI.service.MemberService;
+import com.example.bookAPI.service.RefreshTokenService;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +22,16 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api")
-@Validated
 @RequiredArgsConstructor
+@RequestMapping("/members")
+@Validated
 public class MemberController {
+
     private final MemberService memberService;
+    private final RefreshTokenService refreshTokenService;
     private final JwtTokenizer jwtTokenizer;
     private final PasswordEncoder passwordEncoder;
 
@@ -50,23 +58,62 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity login (@RequestBody @Valid MemberLoginRequestDto loginDto){
-        // email에 해당하는 사용자 정보 읽어와서 암호가 맞는지 검사하는 코드 존재
+    public ResponseEntity login (@RequestBody @Valid MemberLoginRequestDto memberLoginRequestDto, BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
 
-        Long userId = 1L;
-        String email = loginDto.getEmail();
-        List<String> roles = List.of("ROLE_USER");
+        Member member = memberService.findByEmail(memberLoginRequestDto.getEmail());
+        if(!passwordEncoder.matches(memberLoginRequestDto.getPassword(), member.getPassword())){
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
+        List<String> roles = member.getRoles().stream().map(Role::getName).collect(Collectors.toList());
 
         // jwt token created - jwt 라이브러리 이용하여 생성
-        String accessToken = jwtTokenizer.createAccessToken(userId, email, roles);
-        String refreshToken = jwtTokenizer.createRefreshToken(userId, email, roles);
+        String accessToken = jwtTokenizer.createAccessToken(member.getMemberId(), member.getEmail(), member.getName(), roles);
+        String refreshToken = jwtTokenizer.createRefreshToken(member.getMemberId(), member.getEmail(), member.getName(), roles);
+
+        RefreshToken refreshTokenEntity = new RefreshToken();
+        refreshTokenEntity.setValue(refreshToken);
+        refreshTokenEntity.setMemberId(member.getMemberId());
+        refreshTokenService.addRefreshToken(refreshTokenEntity);
 
         MemberLoginResponseDto memberLoginResponseDto = MemberLoginResponseDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .userId(userId)
-                .name("야호")
+                .memberId(member.getMemberId())
+                .name(member.getName())
                 .build();
+
+        return new ResponseEntity(memberLoginResponseDto, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/logout")
+    public ResponseEntity logout(@RequestBody RefreshTokenRequestDto refreshTokenRequestDto){
+        refreshTokenService.deleteRefreshToken(refreshTokenRequestDto.getRefreshToken());
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @PostMapping("/refreshToken")
+    public ResponseEntity refreshToken(@RequestBody RefreshTokenRequestDto refreshTokenRequestDto){
+        RefreshToken refreshToken = refreshTokenService.findRefreshToken(refreshTokenRequestDto.getRefreshToken()).orElseThrow(() -> new IllegalArgumentException("RefreshToken not Found"));
+        Claims claims = jwtTokenizer.parseRefreshToken(refreshToken.getValue());
+
+        Long memberId = Long.valueOf((Integer)claims.get("memberId"));
+        Member member = memberService.getMember(memberId).orElseThrow(() -> new IllegalArgumentException("Member  not Found"));
+
+        List roles = (List) claims.get("roles");
+        String email = claims.getSubject();
+
+        String accessToken = jwtTokenizer.createAccessToken(memberId, email, member.getName(), roles);
+
+        MemberLoginResponseDto memberLoginResponseDto = MemberLoginResponseDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken.getValue())
+                .memberId(memberId)
+                .name(member.getName())
+                .build();
+
         return new ResponseEntity(memberLoginResponseDto, HttpStatus.OK);
     }
 }

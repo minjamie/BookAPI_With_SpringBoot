@@ -27,21 +27,22 @@ public class JwtTokenizer {
         this.refreshSecret = JwtProperties.REFRESH_KEY.getBytes(StandardCharsets.UTF_8);
     }
 
-    public String createAccessToken(Long id, String email, List<String> roles) {
-        return createToken(id, email, roles, ACCESS_TOKEN_EXPIRE_COUNT, accessSecret);
+    public String createAccessToken(Long id, String email, String name, List<String> roles) {
+        return createToken(id, email, name, roles, ACCESS_TOKEN_EXPIRE_COUNT, accessSecret);
     }
 
-    public String createRefreshToken(Long id, String email, List<String> roles) {
-        return createToken(id, email, roles, REFRESH_TOKEN_EXPIRE_COUNT, refreshSecret);
+    public String createRefreshToken(Long id, String email, String name, List<String> roles) {
+        return createToken(id, email, name, roles, REFRESH_TOKEN_EXPIRE_COUNT, refreshSecret);
     }
 
 
-    private String createToken(Long id, String email, List<String> roles,
+    private String createToken(Long id, String email, String name, List<String> roles,
                                Long expire, byte[] secretKey) {
         Claims claims = Jwts.claims().setSubject(email);
 
         claims.put("roles", roles);
-        claims.put("userId", id);
+        claims.put("memberId", id);
+        claims.put("name", name);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -55,7 +56,7 @@ public class JwtTokenizer {
         String[] tokenArr = token.split(" ");
         token = tokenArr[1];
         Claims claims = parseToken(token, accessSecret);
-        return Long.valueOf((Integer)claims.get("userId"));
+        return Long.valueOf((Integer)claims.get("memberId"));
     }
 
     public Claims parseAccessToken(String accessToken) {
