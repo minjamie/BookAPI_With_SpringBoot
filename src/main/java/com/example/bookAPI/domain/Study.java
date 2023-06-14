@@ -23,10 +23,6 @@ public class Study {
     private String title;
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "book_id")
-    private Book book;
-
     @OneToMany(mappedBy = "study")
     private List<Post> studyPosts = new ArrayList<>();
 }
