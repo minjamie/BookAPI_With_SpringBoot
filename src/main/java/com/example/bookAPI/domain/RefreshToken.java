@@ -17,5 +17,6 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long memberId;
+    @Column(columnDefinition = "VARCHAR(1000)")
     private String value;
 }

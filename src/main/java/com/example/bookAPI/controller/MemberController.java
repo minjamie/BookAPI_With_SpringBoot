@@ -12,6 +12,9 @@ import com.example.bookAPI.security.jwt.util.JwtTokenizer;
 import com.example.bookAPI.service.MemberService;
 import com.example.bookAPI.service.RefreshTokenService;
 import io.jsonwebtoken.Claims;
+import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +27,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Api(tags = "MemberApiController", description = "멤버 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/members")
@@ -35,6 +39,12 @@ public class MemberController {
     private final JwtTokenizer jwtTokenizer;
     private final PasswordEncoder passwordEncoder;
 
+    @Operation(summary = "이메일로 멤버 찾기", description = "이메일로 계정 찾기")
+    @GetMapping("/{email}")
+    public Member findMember(@Parameter(description = "이메일", required = true, example = "minjae2246@gmail.om") @RequestParam String email){
+        return memberService.findByEmail(email);
+    }
+
     @PostMapping("/signup")
     public ResponseEntity signup(@RequestBody @Valid MemberSignupRequestDto memberSignupRequestDto, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
@@ -42,6 +52,7 @@ public class MemberController {
         }
 
         Member member = new Member();
+
         member.setName(memberSignupRequestDto.getName());
         member.setEmail(memberSignupRequestDto.getEmail());
         member.setPassword(passwordEncoder.encode(memberSignupRequestDto.getPassword()));

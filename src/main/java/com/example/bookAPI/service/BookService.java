@@ -66,4 +66,8 @@ public class BookService {
         }
         return parentCategory;
     }
+
+    public List<Book> getBooks(String title) {
+        return bookRepository.findByTitleContaining(title);
+    }
 }

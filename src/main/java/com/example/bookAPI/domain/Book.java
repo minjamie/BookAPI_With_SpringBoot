@@ -36,8 +36,8 @@ public class Book {
     @JoinColumn(name ="category_id")
     private Category category;
 
-    @OneToMany(mappedBy = "book")
-    private List<MemberBook> memberBooks = new ArrayList<>();
+//    @OneToMany(mappedBy = "book")
+//    private List<MemberBook> memberBooks = new ArrayList<>();
 
     @OneToMany(mappedBy="book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookReview> bookReviews = new ArrayList<>();
