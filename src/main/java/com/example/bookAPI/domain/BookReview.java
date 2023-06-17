@@ -1,12 +1,13 @@
 package com.example.bookAPI.domain;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+
 @Entity
 @Table(name = "book_review")
 @Getter
@@ -18,20 +19,21 @@ public class BookReview {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 3000)
     private String content;
 
-    @Embedded
-    @Column(nullable = false)
-    private Rating rating;
+    @Column(nullable = false, name = "rating", columnDefinition = "DECIMAL(2, 1) CHECK (rating BETWEEN 0.5 AND 5)")
+    private BigDecimal rating;
 
     private LocalDateTime createdDateTime;
 }

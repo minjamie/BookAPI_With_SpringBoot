@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Api(tags = "MemberApiController", description = "멤버 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/members")
+@RequestMapping("/member")
 @Validated
 public class MemberController {
 
@@ -39,12 +39,13 @@ public class MemberController {
     private final JwtTokenizer jwtTokenizer;
     private final PasswordEncoder passwordEncoder;
 
-    @Operation(summary = "이메일로 멤버 찾기", description = "이메일로 계정 찾기")
+    @Operation(summary = "이메일로 멤버 찾기", description = "이메일로 존재하는 멤버 찾기")
     @GetMapping("/{email}")
-    public Member findMember(@Parameter(description = "이메일", required = true, example = "minjae2246@gmail.om") @RequestParam String email){
+    public Member findMember(@Parameter(description = "이메일", required = true, example = "minjae2246@gmail.com") @RequestParam String email){
         return memberService.findByEmail(email);
     }
 
+    @Operation(summary = "회원가입", description = "이메일, 이름, 비밀번호로 가입하기")
     @PostMapping("/signup")
     public ResponseEntity signup(@RequestBody @Valid MemberSignupRequestDto memberSignupRequestDto, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
@@ -68,6 +69,7 @@ public class MemberController {
         return new ResponseEntity(memberSignupResponseDto, HttpStatus.CREATED);
     }
 
+    @Operation(summary = "로그인", description = "이메일, 비밀번호로 로그인하기")
     @PostMapping("/login")
     public ResponseEntity login (@RequestBody @Valid MemberLoginRequestDto memberLoginRequestDto, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
@@ -99,12 +101,14 @@ public class MemberController {
         return new ResponseEntity(memberLoginResponseDto, HttpStatus.OK);
     }
 
+    @Operation(summary = "로그아웃", description = "리프레시 토큰으로 로그아웃 하기")
     @DeleteMapping("/logout")
     public ResponseEntity logout(@RequestBody RefreshTokenRequestDto refreshTokenRequestDto){
         refreshTokenService.deleteRefreshToken(refreshTokenRequestDto.getRefreshToken());
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    @Operation(summary = "접근 토큰 재발급", description = "리프레시 토큰으로 접근 토큰 연장하기")
     @PostMapping("/refreshToken")
     public ResponseEntity refreshToken(@RequestBody RefreshTokenRequestDto refreshTokenRequestDto){
         RefreshToken refreshToken = refreshTokenService.findRefreshToken(refreshTokenRequestDto.getRefreshToken()).orElseThrow(() -> new IllegalArgumentException("RefreshToken not Found"));

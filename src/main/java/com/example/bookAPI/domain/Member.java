@@ -54,8 +54,8 @@ public class Member {
     )
     private List<Study> studies = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "member")
-//    private List<MemberBook> memberBooks = new ArrayList<>();
+    @OneToMany(mappedBy = "member")
+    private List<MemberBook> memberBooks = new ArrayList<>();
 
     @OneToMany(mappedBy="member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookReview> bookReviews = new ArrayList<>();

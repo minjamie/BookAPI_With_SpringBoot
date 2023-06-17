@@ -1,5 +1,7 @@
 package com.example.bookAPI.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +21,7 @@ public class Book {
     @Column(name="book_id")
     private Long bookId;
     private String title;
-    private String subTitle;
+    private String subtitle;
     private String writer;
     private String publisher;
     private String publishDate;
@@ -32,13 +34,17 @@ public class Book {
     private boolean isEbook;
     private int count;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="category_id")
+    @JsonIgnore
     private Category category;
 
-//    @OneToMany(mappedBy = "book")
-//    private List<MemberBook> memberBooks = new ArrayList<>();
+    @OneToMany(mappedBy = "book")
+    @JsonIgnore
+    private List<MemberBook> memberBooks = new ArrayList<>();
 
-    @OneToMany(mappedBy="book", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @JsonManagedReference
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookReview> bookReviews = new ArrayList<>();
 }

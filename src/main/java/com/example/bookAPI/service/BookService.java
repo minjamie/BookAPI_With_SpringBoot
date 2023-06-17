@@ -3,6 +3,7 @@ package com.example.bookAPI.service;
 import com.example.bookAPI.domain.Book;
 import com.example.bookAPI.domain.Category;
 import com.example.bookAPI.dto.book.BookSaveRequestDto;
+import com.example.bookAPI.dto.book.review.BookReviewRequestDto;
 import com.example.bookAPI.repository.BookRepository;
 import com.example.bookAPI.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class BookService {
         Category category = getCategory(categoryName);
         Book book = new Book();
         book.setTitle(bookSaveRequestDto.getTitle());
-        book.setSubTitle(bookSaveRequestDto.getSubTitle());
+        book.setSubtitle(bookSaveRequestDto.getSubTitle());
         book.setImg(bookSaveRequestDto.getImg());
         book.setWriter(bookSaveRequestDto.getWriter());
         book.setPublisher(bookSaveRequestDto.getPublisher());
@@ -67,7 +68,14 @@ public class BookService {
         return parentCategory;
     }
 
-    public List<Book> getBooks(String title) {
+    @Transactional(readOnly = true)
+    public List<Book> getBooks
+            (String title) {
         return bookRepository.findByTitleContaining(title);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Book> getBook(Long bookId) {
+        return bookRepository.findById(bookId);
     }
 }
