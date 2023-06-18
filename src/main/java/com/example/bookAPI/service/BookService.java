@@ -3,7 +3,7 @@ package com.example.bookAPI.service;
 import com.example.bookAPI.domain.Book;
 import com.example.bookAPI.domain.Category;
 import com.example.bookAPI.dto.book.BookSaveRequestDto;
-import com.example.bookAPI.dto.book.review.BookReviewRequestDto;
+import com.example.bookAPI.dto.book.BookSearchResponseDto;
 import com.example.bookAPI.repository.BookRepository;
 import com.example.bookAPI.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -69,7 +70,7 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public List<Book> getBooks
+    public List<BookSearchResponseDto> getBooks
             (String title) {
         return bookRepository.findByTitleContaining(title);
     }

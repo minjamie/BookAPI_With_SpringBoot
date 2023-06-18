@@ -3,6 +3,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -35,5 +36,9 @@ public class BookReview {
     @Column(nullable = false, name = "rating", columnDefinition = "DECIMAL(2, 1) CHECK (rating BETWEEN 0.5 AND 5)")
     private BigDecimal rating;
 
-    private LocalDateTime createdDateTime;
+    @CreationTimestamp
+    private LocalDateTime createDateTime;
+
+    @CreationTimestamp
+    private LocalDateTime updateDateTime;
 }

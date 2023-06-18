@@ -1,4 +1,4 @@
-package com.example.bookAPI.dto.book.review;
+package com.example.bookAPI.dto.review;
 
 import lombok.*;
 
