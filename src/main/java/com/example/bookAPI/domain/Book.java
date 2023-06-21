@@ -1,13 +1,17 @@
 package com.example.bookAPI.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -33,10 +37,12 @@ public class Book {
     private String detailNum;
     private boolean isEbook;
     private int count;
+    private LocalDateTime createDateTime;
+    @CreationTimestamp
+    private LocalDateTime updateDateTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="category_id")
-    @JsonIgnore
     private Category category;
 
     @OneToMany(mappedBy = "book")

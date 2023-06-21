@@ -2,16 +2,18 @@ package com.example.bookAPI.service;
 
 import com.example.bookAPI.domain.Book;
 import com.example.bookAPI.domain.Category;
+import com.example.bookAPI.dto.book.BookCountPerCategoryResponseDto;
 import com.example.bookAPI.dto.book.BookSaveRequestDto;
 import com.example.bookAPI.dto.book.BookSearchResponseDto;
 import com.example.bookAPI.repository.BookRepository;
 import com.example.bookAPI.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -26,6 +28,9 @@ public class BookService {
 
             Optional<Book> existedBook = bookRepository.findByTitle(bookRequestDto.getTitle());
             if (existedBook.isPresent()) {
+//                existedBook.get().setCreateDateTime(bookRequestDto.getCreateDateTime());
+                // 필요한 다른 필드 업데이트
+//                bookRepository.save(existedBook.get());
                 Book existBook = existedBook.get();
                 existBook.setCount(existBook.getCount() + 1);
             } else {
@@ -70,13 +75,27 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public List<BookSearchResponseDto> getBooks
-            (String title) {
-        return bookRepository.findByTitleContaining(title);
+    public Page<BookSearchResponseDto> getbooksByTitle
+            (String title, Pageable pageable) {
+        return bookRepository.findByTitleContaining(title, pageable);
     }
 
     @Transactional(readOnly = true)
     public Optional<Book> getBook(Long bookId) {
         return bookRepository.findById(bookId);
+    }
+
+    public Page<BookSearchResponseDto> getPurchasedBooks(Pageable pageable) {
+        return bookRepository.findTopNBooksOrderByCreateDateTimeDesc(pageable);
+    }
+
+//    public Page<BookSearchResponseDto> getBooksByCategory(Integer categoryId, PageRequest pageable) {
+//
+//        String categoryName = "";
+//        return bookRepository.findByCategory(categoryId, pageable);
+//    }
+
+    public List<BookCountPerCategoryResponseDto> getBookCountPerCategory() {
+        return bookRepository.countByCategory();
     }
 }

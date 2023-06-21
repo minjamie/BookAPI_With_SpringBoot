@@ -16,11 +16,11 @@ public class BookSearchResponseDto {
     private String title;
     private String subtitle;
     private String writer;
-//    private String publisher;
-//    private String publishDate;
-//    private String img;
-//    private String introduce;
-//    private boolean isEbook;
-//    private int count;
+    private String publisher;
+    private String publishDate;
+    private String img;
+    private boolean isEbook;
+    private int count;
     private Double rating;
+
 }

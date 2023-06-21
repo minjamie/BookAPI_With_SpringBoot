@@ -17,9 +17,17 @@ spring:
     output:
       ansi:
         enabled: always
+    level:
+      org.hibernate.SQL: DEBUG
+      org.hibernate.type.sql.BasicBinder: TRACE
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        one-indexed-parameters: true
 jwt:
   secretKey: 12345678901234567890123456789012
   refreshKey: 12345678901234567890123456789012

@@ -1,8 +1,11 @@
 package com.example.bookAPI.dto.book;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.persistence.Column;
+import java.sql.Date;
+import java.time.LocalDateTime;
 
 
 @Data
@@ -17,4 +20,6 @@ public class BookSaveRequestDto {
     private String introduce;
     private boolean isEbook;
     private String category;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss.SSS")
+    private LocalDateTime createDateTime;
 }
