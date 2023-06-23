@@ -28,6 +28,7 @@ public interface BookRepository extends JpaRepository<Book,Long> {
                     "WHERE b.title LIKE %:title% OR b.subtitle LIKE %:title%")
     Page<BookSearchResponseDto> findByTitleContaining(@Param("title") String title, Pageable pageable);
 
+
     @Query(value = "SELECT new com.example.bookAPI.dto.book.BookSearchResponseDto(b.id, b.title, b.subtitle, b.writer, b.publisher, b.publishDate, b.img, b.isEbook, b.count," +
             "coalesce(avg(br.rating),0))" +
             "FROM Book b " +
