@@ -28,7 +28,6 @@ public interface BookRepository extends JpaRepository<Book,Long> {
                     "WHERE b.title LIKE %:title% OR b.subtitle LIKE %:title%")
     Page<BookSearchResponseDto> findByTitleContaining(@Param("title") String title, Pageable pageable);
 
-
     @Query(value = "SELECT new com.example.bookAPI.dto.book.BookSearchResponseDto(b.id, b.title, b.subtitle, b.writer, b.publisher, b.publishDate, b.img, b.isEbook, b.count," +
             "coalesce(avg(br.rating),0))" +
             "FROM Book b " +
@@ -53,7 +52,9 @@ public interface BookRepository extends JpaRepository<Book,Long> {
             "FROM book AS b " +
             "LEFT JOIN category AS detail ON detail.id = b.category_id " +
             "LEFT JOIN category AS sub ON sub.id = detail.parent_category_id " +
-            "LEFT JOIN category AS c ON c.id = sub.parent_category_id OR sub.name = c.name OR detail.name = c.name " +
+            "LEFT JOIN category AS c ON c.id = sub.parent_category_id " +
+            "OR c.name = sub.name " +
+            "OR c.name =detail.name " +
             "WHERE c.parent_category_id is null " +
             "GROUP BY c.name", nativeQuery = true)
     List<BookCountPerCategoryResponseDto> countByCategory();
