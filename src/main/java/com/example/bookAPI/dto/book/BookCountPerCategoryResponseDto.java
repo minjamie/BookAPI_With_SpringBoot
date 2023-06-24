@@ -6,5 +6,5 @@ import lombok.*;
 
 public interface BookCountPerCategoryResponseDto {
      String getName();
-    Integer getCount();
+     Integer getCount();
 }

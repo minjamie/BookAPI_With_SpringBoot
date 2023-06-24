@@ -2,6 +2,7 @@ package com.example.bookAPI.service;
 
 import com.example.bookAPI.domain.Book;
 import com.example.bookAPI.domain.Category;
+import com.example.bookAPI.dto.Enum.CategoryType;
 import com.example.bookAPI.dto.book.BookCountPerCategoryResponseDto;
 import com.example.bookAPI.dto.book.BookSaveRequestDto;
 import com.example.bookAPI.dto.book.BookSearchResponseDto;
@@ -28,9 +29,6 @@ public class BookService {
 
             Optional<Book> existedBook = bookRepository.findByTitle(bookRequestDto.getTitle());
             if (existedBook.isPresent()) {
-//                existedBook.get().setCreateDateTime(bookRequestDto.getCreateDateTime());
-                // 필요한 다른 필드 업데이트
-//                bookRepository.save(existedBook.get());
                 Book existBook = existedBook.get();
                 existBook.setCount(existBook.getCount() + 1);
             } else {
@@ -89,11 +87,19 @@ public class BookService {
         return bookRepository.findTopNBooksOrderByCreateDateTimeDesc(pageable);
     }
 
-//    public Page<BookSearchResponseDto> getBooksByCategory(Integer categoryId, PageRequest pageable) {
-//
-//        String categoryName = "";
-//        return bookRepository.findByCategory(categoryId, pageable);
-//    }
+    public String getCategoryName(int id) {
+        for (CategoryType ct : CategoryType.values()) {
+            if (ct.getId() == id) {
+                return ct.getName();
+            }
+        }
+        return null;
+    }
+
+    public Page<BookSearchResponseDto> getBooksByCategory(int categoryId, String title, Pageable pageable) {
+        String categoryName = getCategoryName(categoryId);
+        return bookRepository.findByCategory(categoryName, title, pageable);
+    }
 
     public List<BookCountPerCategoryResponseDto> getBookCountPerCategory() {
         return bookRepository.countByCategory();

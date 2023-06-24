@@ -35,6 +35,4 @@ public enum CategoryType {
         this.id = id;
         this.name = name;
     }
-
-
 }

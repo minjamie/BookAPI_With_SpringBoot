@@ -42,11 +42,25 @@ public interface BookRepository extends JpaRepository<Book,Long> {
             "coalesce(avg(br.rating),0))" +
             "FROM Book b " +
             "LEFT JOIN b.bookReviews br " +
+            "LEFT JOIN b.category detail "+
+            "LEFT JOIN detail.parentCategory sub "+
+            "LEFT JOIN sub.parentCategory c " +
+            "WHERE c.parentCategory IS NULL " +
+            "AND c.name = :categoryName " +
+            "AND (:title IS NULL OR b.title LIKE %:title% OR b.subtitle LIKE %:title%) " +
+            "OR c.name = sub.name OR c.name = detail.name " +
             "GROUP BY b.id",
-            countQuery = "SELECT COUNT(DISTINCT b.id) " +
-                    "FROM Book b " +
-                    "LEFT JOIN b.bookReviews br")
-    Page<BookSearchResponseDto> findByCategory(Integer categoryId, PageRequest pageable);
+            countQuery = "SELECT COUNT(DISTINCT b.id) "
+                    + "FROM Book b "
+                    + "LEFT JOIN b.category detail "
+                    + "LEFT JOIN detail.parentCategory sub "
+                    + "LEFT JOIN sub.parentCategory c "
+                    + "WHERE c.parentCategory IS NULL "
+                    + "AND c.name = :categoryName "
+                    + "AND (:title IS NULL OR b.title LIKE %:title% OR b.subtitle LIKE %:title%)"
+                    + "OR c.name = sub.name "
+                    + "OR c.name = detail.name ")
+    Page<BookSearchResponseDto> findByCategory(@Param("categoryName") String categoryName, @Param("title") String title, Pageable pageable);
 
     @Query(value = "SELECT c.name, COUNT(b.book_id) AS count " +
             "FROM book AS b " +
