@@ -74,9 +74,11 @@ public class BookController {
         return bookService.getBookCountPerCategory();
     }
 
+
     @Operation(summary = "책 리스트 저장", description = "스크래핑으로 받은 책 리스트 저장")
     @PostMapping("/save")
     public void saveBooks(@RequestBody List<BookSaveRequestDto> books) {
         bookService.saveBooks(books);
     }
+
 }
