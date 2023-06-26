@@ -48,6 +48,7 @@ public interface BookRepository extends JpaRepository<Book,Long> {
             "WHERE c.parentCategory IS NULL " +
             "AND c.name = :categoryName " +
             "AND (:title IS NULL OR b.title LIKE %:title% OR b.subtitle LIKE %:title%) " +
+            "AND (:subCategory IS NULL OR sub.name = :subCategory) " +
             "OR c.name = sub.name OR c.name = detail.name " +
             "GROUP BY b.id",
             countQuery = "SELECT COUNT(DISTINCT b.id) "
@@ -58,9 +59,10 @@ public interface BookRepository extends JpaRepository<Book,Long> {
                     + "WHERE c.parentCategory IS NULL "
                     + "AND c.name = :categoryName "
                     + "AND (:title IS NULL OR b.title LIKE %:title% OR b.subtitle LIKE %:title%)"
+                    + "AND (:subCategory IS NULL OR sub.name = :subCategory) "
                     + "OR c.name = sub.name "
                     + "OR c.name = detail.name ")
-    Page<BookSearchResponseDto> findByCategory(@Param("categoryName") String categoryName, @Param("title") String title, Pageable pageable);
+    Page<BookSearchResponseDto> findByCategory(@Param("categoryName") String categoryName, @Param("title") String title, @Param("subCategory") String subCategory, Pageable pageable);
 
     @Query(value = "SELECT c.name, COUNT(b.book_id) AS count " +
             "FROM book AS b " +
@@ -72,4 +74,15 @@ public interface BookRepository extends JpaRepository<Book,Long> {
             "WHERE c.parent_category_id is null " +
             "GROUP BY c.name", nativeQuery = true)
     List<BookCountPerCategoryResponseDto> countByCategory();
+
+    @Query(value = "SELECT sub.name, count(b.book_id) AS count " +
+            "FROM book AS b " +
+            "LEFT JOIN category AS detail ON detail.id = b.category_id " +
+            "LEFT JOIN category AS sub ON sub.id = detail.parent_category_id " +
+            "LEFT JOIN category AS c ON c.id = sub.parent_category_id " +
+            "OR c.name = sub.name " +
+            "OR c.name = detail.name " +
+            "WHERE c.name = :categoryName " +
+            "GROUP BY sub.name", nativeQuery = true)
+    List<BookCountPerCategoryResponseDto> countBySubCategory(@Param("categoryName") String categoryName);
 }
