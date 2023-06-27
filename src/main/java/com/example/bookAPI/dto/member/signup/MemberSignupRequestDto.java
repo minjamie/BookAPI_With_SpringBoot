@@ -1,5 +1,6 @@
 package com.example.bookAPI.dto.member.signup;
 
+import com.example.bookAPI.domain.Book;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
+import java.util.ArrayList;
 
 @Getter
 @Builder
@@ -32,4 +34,7 @@ public class MemberSignupRequestDto {
             message = "이름은 영문자, 한글, 공백포함 2글자부터 15글자까지 가능합니다.")
     @ApiModelProperty(value = "이름", dataType = "String", required = true, example = "김민재")
     private String name;
+
+    @ApiModelProperty(value = "책 리스트", dataType = "Array", required = false, example = "[1,2,3]")
+    private int[] bookIds;
 }
