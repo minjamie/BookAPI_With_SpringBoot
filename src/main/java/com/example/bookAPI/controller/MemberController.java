@@ -1,16 +1,17 @@
 package com.example.bookAPI.controller;
 
-import com.example.bookAPI.domain.Member;
-import com.example.bookAPI.domain.RefreshToken;
-import com.example.bookAPI.domain.Role;
+import com.example.bookAPI.domain.*;
 import com.example.bookAPI.dto.member.login.MemberLoginRequestDto;
 import com.example.bookAPI.dto.member.login.MemberLoginResponseDto;
 import com.example.bookAPI.dto.member.signup.MemberSignupRequestDto;
 import com.example.bookAPI.dto.member.signup.MemberSignupResponseDto;
+import com.example.bookAPI.dto.memberBook.MemberBookRequestDto;
 import com.example.bookAPI.dto.refresh.RefreshTokenRequestDto;
 import com.example.bookAPI.security.jwt.util.JwtTokenizer;
+import com.example.bookAPI.service.BookService;
 import com.example.bookAPI.service.MemberService;
 import com.example.bookAPI.service.RefreshTokenService;
+import com.example.bookAPI.service.MemberBookService;
 import io.jsonwebtoken.Claims;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Api(tags = "MemberApiController", description = "멤버 API")
@@ -35,6 +37,8 @@ import java.util.stream.Collectors;
 public class MemberController {
 
     private final MemberService memberService;
+    private final MemberBookService memberBookService;
+    private final BookService bookService;
     private final RefreshTokenService refreshTokenService;
     private final JwtTokenizer jwtTokenizer;
     private final PasswordEncoder passwordEncoder;
@@ -60,11 +64,26 @@ public class MemberController {
 
         Member saveMember = memberService.addMember(member);
 
+        if(!memberSignupRequestDto.getMemberBooks().isEmpty()){
+            for (MemberBookRequestDto memberBookRequestDto : memberSignupRequestDto.getMemberBooks()) {
+                MemberBook memberBook = new MemberBook();
+
+                memberBook.setMember(saveMember);
+                memberBook.setHas(memberBookRequestDto.isHas());
+                memberBook.setRead(memberBookRequestDto.isRead());
+
+                Optional<Book> book = bookService.getBook(memberBookRequestDto.getBookId());
+                memberBook.setBook(book.get());
+                memberBookService.saveMemberBook(memberBook);
+            }
+        }
+
         MemberSignupResponseDto memberSignupResponseDto = new MemberSignupResponseDto();
         memberSignupResponseDto.setMemberId(saveMember.getMemberId());
         memberSignupResponseDto.setName(saveMember.getName());
         memberSignupResponseDto.setCreateDateTime(saveMember.getUpdateDateTime());
         memberSignupResponseDto.setEmail(saveMember.getEmail());
+
 
         return new ResponseEntity(memberSignupResponseDto, HttpStatus.CREATED);
     }

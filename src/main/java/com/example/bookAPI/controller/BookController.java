@@ -33,7 +33,7 @@ public class BookController {
             @Parameter(description = "조회 사이즈", required = true, example = "sql")  @RequestParam(value = "size", defaultValue = "10") int size
     ){
         PageRequest pageable = PageRequest.of(page-1, size);
-        Page<BookSearchResponseDto> resultPage = bookService.getbooksByTitle(title, pageable);
+        Page<BookSearchResponseDto> resultPage = bookService.getBooksByTitle(title, pageable);
         return new BookSearchResult(resultPage.getContent(), resultPage.getTotalPages(), resultPage.getTotalElements(), resultPage.getNumber()+1, resultPage.isLast());
     }
 

@@ -4,7 +4,6 @@ import com.example.bookAPI.domain.Book;
 import com.example.bookAPI.dto.book.BookCountPerCategoryResponseDto;
 import com.example.bookAPI.dto.book.BookSearchResponseDto;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -85,4 +84,7 @@ public interface BookRepository extends JpaRepository<Book,Long> {
             "WHERE c.name = :categoryName " +
             "GROUP BY sub.name", nativeQuery = true)
     List<BookCountPerCategoryResponseDto> countBySubCategory(@Param("categoryName") String categoryName);
+
+    @Query("SELECT b FROM Book b WHERE b.id IN (:bookIds)")
+    List<Book> findAllById(@Param("bookIds") List<Long> bookIds);
 }

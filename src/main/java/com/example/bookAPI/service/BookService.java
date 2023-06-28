@@ -73,7 +73,7 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public Page<BookSearchResponseDto> getbooksByTitle
+    public Page<BookSearchResponseDto> getBooksByTitle
             (String title, Pageable pageable) {
         return bookRepository.findByTitleContaining(title, pageable);
     }
@@ -101,6 +101,10 @@ public class BookService {
         return bookRepository.findByCategory(categoryName, title, subCategory, pageable);
     }
 
+    public List<Book> getBooksByIds(List<Long> bookIds){
+        return bookRepository.findAllById(bookIds);
+    }
+
     public List<BookCountPerCategoryResponseDto> getBookCountPerCategory() {
         return bookRepository.countByCategory();
     }
@@ -109,4 +113,6 @@ public class BookService {
         String categoryName = getCategoryName(categoryId);
         return bookRepository.countBySubCategory(categoryName);
     }
+
+
 }

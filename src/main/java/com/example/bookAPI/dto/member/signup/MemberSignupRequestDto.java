@@ -1,6 +1,8 @@
 package com.example.bookAPI.dto.member.signup;
 
 import com.example.bookAPI.domain.Book;
+import com.example.bookAPI.dto.memberBook.MemberBookRequestDto;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +12,8 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -35,6 +39,11 @@ public class MemberSignupRequestDto {
     @ApiModelProperty(value = "이름", dataType = "String", required = true, example = "김민재")
     private String name;
 
-    @ApiModelProperty(value = "책 리스트", dataType = "Array", required = false, example = "[1,2,3]")
-    private int[] bookIds;
+    private List<MemberBookRequestDto> memberBooks;
+
+    public List<Long> getBookIds() {
+        return memberBooks.stream()
+                .map(MemberBookRequestDto::getBookId)
+                .collect(Collectors.toList());
+    };
 }
