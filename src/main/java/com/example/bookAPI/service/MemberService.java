@@ -29,7 +29,6 @@ public class MemberService {
     public Member findByEmail(String email) {
         return memberRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("not found member"));
     }
-
     @Transactional(readOnly = true)
     public Optional<Member> getMember(Long memberId){
         return memberRepository.findById(memberId);
