@@ -101,7 +101,6 @@ public class MemberController {
         }
         List<String> roles = member.getRoles().stream().map(Role::getName).collect(Collectors.toList());
 
-        // jwt token created - jwt 라이브러리 이용하여 생성
         String accessToken = jwtTokenizer.createAccessToken(member.getMemberId(), member.getEmail(), member.getName(), roles);
         String refreshToken = jwtTokenizer.createRefreshToken(member.getMemberId(), member.getEmail(), member.getName(), roles);
 
